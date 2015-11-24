@@ -1,9 +1,18 @@
+import java.util.ArrayList;
 
 public class Board {
 	
 	private Piece [][] board = new Piece [8][8];
+	private double score;
+	private String hash;
 	
-	public void initBoard(){
+	public static void main(String [] args){
+		Board board = new Board();
+		board.initBoard();
+		board.printBoard();
+	}
+	
+	private void initBoard(){
 		int i=1, j=0;
 		for (j=0; j<8; j++){
 			int a [] = {i, j};
@@ -48,7 +57,7 @@ public class Board {
 		}
 	}
 
-	public void printBoard(){
+	private void printBoard(){
 		for (int i=0; i<8; i++){
 			for (int j=0; j<8; j++){
 				System.out.print(board[i][j].getRepresentation() + " ");
@@ -57,10 +66,77 @@ public class Board {
 		}
 	}
 	
-	public static void main(String [] args){
-		Board board = new Board();
-		board.initBoard();
-		board.printBoard();
+	private ArrayList<Board> generateMoves(Board iBoard){
+		
+		
+		
+		return null;
+	}
+
+	private ArrayList<Board> movePawn(Board iBoard, int[] cood){
+		int r = cood[0]; //Rank
+		int f = cood[1]; //File
+		Piece piece = iBoard.getBoard()[r][f];
+		char side = piece.getSide();
+		if (side == 'W'){
+			int [] oneUp = {r, f+1};
+			int [] twoUp = {r, f+2};
+			int [] takeLeft = {r-1, f+1};
+			int [] takeRight = {r+1, f+1};
+		}
+		else{
+			
+		}
+		return null;
+	}
+	
+	private ArrayList<Board> moveBishop(Board iBoard, int[] cood){
+	
+		return null;
+	}
+	
+	private ArrayList<Board> moveKnight(Board iBoard, int[] cood){
+		
+		return null;
+	}
+	
+	private ArrayList<Board> moveRook(Board iBoard, int[] cood){
+		
+		return null;
+	}
+	
+	private ArrayList<Board> moveQueen(Board iBoard, int[] cood){
+		
+		return null;
+	}
+	
+	private ArrayList<Board> moveKing(Board iBoard, int[] cood){
+		
+		return null;
+	}
+	
+	public String getHash() {
+		return hash;
+	}
+
+	public void setHash(String hash) {
+		this.hash = hash;
+	}
+
+	public Piece[][] getBoard() {
+		return board;
+	}
+
+	public void setBoard(Piece[][] board) {
+		this.board = board;
+	}
+
+	public double getScore() {
+		return score;
+	}
+
+	public void setScore(double score) {
+		this.score = score;
 	}
 	
 }
