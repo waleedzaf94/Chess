@@ -74,6 +74,7 @@ public class Board {
 	}
 
 	private ArrayList<Board> movePawn(Board iBoard, int[] cood){
+		ArrayList<Board> results = new ArrayList<>();
 		int r = cood[0]; //Rank
 		int f = cood[1]; //File
 		Piece piece = iBoard.getBoard()[r][f];
@@ -83,11 +84,50 @@ public class Board {
 			int [] twoUp = {r, f+2};
 			int [] takeLeft = {r-1, f+1};
 			int [] takeRight = {r+1, f+1};
+				
 		}
 		else{
+			int [] oneDown = {r, f-1};
+			int [] twoDown = {r, f-2};
+			int [] takeLeft = {r+1, f-1};
+			int [] takeRight = {r-1, f-1};
 			
 		}
-		return null;
+		return results;
+	}
+	
+	private boolean pawnValid(Board tBoard, int [] init, int [] target){
+		Piece[][] board = tBoard.getBoard();
+		int ix = init[0];
+		int iy = init[1];
+		int tx = target[0];
+		int ty = target[1];
+		if (tx<0 || ty<0 || tx>7 || ty>7) return false; //Check if target is on board
+		Piece ipiece = board[ix][iy];
+		Piece tpiece = board[tx][ty];
+		if (ix==tx){
+			if (tpiece.getType() != "Blank") return false; //Check if target is blank
+			int vdiff = Math.abs(ty-iy);
+			if (vdiff > 1){
+				if (ipiece.getSide() == 'W'){
+					if (iy != 1) return false; //In case starting position isn't 1
+					if (board[tx][ty+1].getType() != "Blank") return false; //In case there is another square in between initial and target
+				}
+				else{
+					if (iy != 6) return false;
+					if (board[tx][ty-1].getType() != "Blank") return false;
+				}
+			}
+			
+		}
+		else{
+			if (tpiece.getSide() == ipiece.getSide()) return false;
+		}
+		board[tx][ty] = board[ix][iy];
+		boolean check = testCheck(board, ipiece.getSide());
+		if (check) return false;
+		
+		return true;
 	}
 	
 	private ArrayList<Board> moveBishop(Board iBoard, int[] cood){
@@ -113,6 +153,29 @@ public class Board {
 	private ArrayList<Board> moveKing(Board iBoard, int[] cood){
 		
 		return null;
+	}
+	
+	private boolean testCheck(Piece[][] board, char side){
+		Piece king;
+		int x, y;
+		for (int i=0; i<8; i++){
+			for (int j=0; j<8; j++){
+				if (board[i][j].getType().equals("King"))
+					if (board[i][j].getSide() == side){
+						king = board[i][j];
+						x = i;
+						y = j;
+						break;
+					}
+			}
+		}
+		if (side == 'W'){
+			
+		}
+		else{
+			
+		}
+		return false;
 	}
 	
 	public String getHash() {

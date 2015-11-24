@@ -1,10 +1,10 @@
 
 public class Piece {
 	
-	private String type;
+	private String type; // Pawn, Rook, Knight, Bishop, Queen, King, Blank
 	private int [] position;
-	private char side;
-	private char representation;
+	private char side; // W, B
+	private char representation; // P, R, N, B, Q, K, -
 	
 	public Piece(String type, int [] position, char side, char representation){
 		this.type = type;
