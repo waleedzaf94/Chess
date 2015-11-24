@@ -1,5 +1,5 @@
 
-public class Piece {
+public class Piece implements Cloneable{
 	
 	private String type; // Pawn, Rook, Knight, Bishop, Queen, King, Blank
 	private int [] position;

@@ -77,27 +77,56 @@ public class Board {
 		ArrayList<Board> results = new ArrayList<>();
 		int r = cood[0]; //Rank
 		int f = cood[1]; //File
-		Piece piece = iBoard.getBoard()[r][f];
+		Piece[][] board = iBoard.getBoard();
+		Piece piece = board[r][f];
 		char side = piece.getSide();
 		if (side == 'W'){
-			int [] oneUp = {r, f+1};
-			int [] twoUp = {r, f+2};
-			int [] takeLeft = {r-1, f+1};
-			int [] takeRight = {r+1, f+1};
+			int [][] moves = {{0, 1}, {0, 2}, {-1, 1}, {1, 1}};
+			for (int i=0; i<4; i++){
+				int [] move = moves[i];
+				int tx = r+move[0];
+				int ty = f+move[1];
+				int [] target = {tx, ty};
+				if (tx>-1 && tx<8 && ty>-1 && ty<8){
+					if (pawnValid(board, cood, target)){
+						Piece[][] newboard = board.clone();
+						Board newiboard = new Board();
+						newboard[tx][ty] = new Piece(piece.getType(), target, piece.getSide(), piece.getRepresentation());
+						newboard[r][f] = new Piece("Blank", cood, 'N', '-');
+						newiboard.setBoard(newboard);
+						//Set new board hash
+						//Set new board score
+						results.add(newiboard);
+					}
+				}
+			}
 				
 		}
-		else{
-			int [] oneDown = {r, f-1};
-			int [] twoDown = {r, f-2};
-			int [] takeLeft = {r+1, f-1};
-			int [] takeRight = {r-1, f-1};
-			
+		else if (side == 'B'){
+			int [][] moves = {{0, -1}, {0, -2}, {1, -1}, {-1, -1}};
+			for (int i=0; i<4; i++){
+				int [] move = moves[i];
+				int tx = r+move[0];
+				int ty = f+move[1];
+				int [] target = {tx, ty};
+				if (tx>-1 && tx<8 && ty>-1 && ty<8){
+					if (pawnValid(board, cood, target)){
+						Piece[][] newboard = board.clone();
+						Board newiboard = new Board();
+						newboard[tx][ty] = new Piece(piece.getType(), target, piece.getSide(), piece.getRepresentation());
+						newboard[r][f] = new Piece("Blank", cood, 'N', '-');
+						newiboard.setBoard(newboard);
+						//Set new board hash
+						//Set new board score
+						results.add(newiboard);
+					}
+				}
+			}
 		}
 		return results;
 	}
 	
-	private boolean pawnValid(Board tBoard, int [] init, int [] target){
-		Piece[][] board = tBoard.getBoard();
+	private boolean pawnValid(Piece[][] Board, int [] init, int [] target){
 		int ix = init[0];
 		int iy = init[1];
 		int tx = target[0];
@@ -126,7 +155,6 @@ public class Board {
 		board[tx][ty] = board[ix][iy];
 		boolean check = testCheck(board, ipiece.getSide());
 		if (check) return false;
-		
 		return true;
 	}
 	
@@ -156,24 +184,143 @@ public class Board {
 	}
 	
 	private boolean testCheck(Piece[][] board, char side){
-		Piece king;
-		int x, y;
+		char enemy='B';
+		if (side == 'W') enemy = 'B';
+		else enemy = 'W';
+		int x=0, y=0;
 		for (int i=0; i<8; i++){
 			for (int j=0; j<8; j++){
-				if (board[i][j].getType().equals("King"))
+				if (board[i][j].getType().equals("King")){
 					if (board[i][j].getSide() == side){
-						king = board[i][j];
 						x = i;
 						y = j;
 						break;
 					}
+				}
 			}
 		}
-		if (side == 'W'){
-			
+		//Check immediate 8 squares
+		int [][] moves = {{-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}};
+		for (int i=0; i<8; i++){
+			int [] move = moves[i];
+			int tx = x+move[0];
+			int ty = y+move[1];
+			if (tx>-1 && tx<8 && ty>-1 && ty<8){
+				Piece piece = board[tx][ty];
+				if (piece.getSide() == enemy){ //No possible check from a knight in the surrounding 8 squares
+//					if (piece.getType().equals("Queen")) return true; //Check if queen is in surrounding 8 squares
+					if (piece.getType().equals("King")) return true; //Check if king is in surrounding 8 squares
+//					if (piece.getType().equals("Rook")){
+//						if (move[0]==0 || move[1]==0) return true; //Check if rook is in surrounding 4 squares either on same rank or file
+//					}
+//					if (piece.getType().equals("Bishop")){
+//						if (move[0]!=0 && move[1]!=0) return true; //Check if bishop is in surrounding 4 diagonal squares
+//					}
+					if (piece.getType().equals("Pawn")){
+						if (side == 'W'){
+							if (move[0]!=0 && move[1]==1) return true; //Check if pawn is diagonally behind the king
+						}
+						else{
+							if (move[0]!=0 && move[1]==-1) return true;
+						}
+					}
+				}
+			}
 		}
-		else{
-			
+		//Check for attacking knights
+		int [][] kmoves = {{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}};
+		for (int i=0; i<8; i++){
+			int [] move = kmoves[i];
+			int tx = x+move[0];
+			int ty = y+move[1];
+			if (tx>-1 && tx<8 && ty>-1 && ty<8){
+				Piece piece = board[tx][ty];
+				if (piece.getType().equals("Knight") && piece.getSide() == enemy) return true;
+			}
+		}
+		//Check file upwards
+		for (int i=0; i<7; i++){
+			int ty=y+i;
+			if (ty>-1 && ty<8){
+				Piece piece = board[x][ty];
+				if (piece.getType().equals("Rook") && piece.getSide() == enemy) return true;
+				else if (piece.getType().equals("Queen") && piece.getSide() == enemy) return true;
+				else if (!(piece.getType().equals("Blank"))) break;
+			}
+		}
+		//Check file downwards
+		for (int i=0; i<7; i++){
+			int ty=y-i;
+			if (ty>-1 && ty<8){
+				Piece piece = board[x][ty];
+				if (piece.getType().equals("Rook") && piece.getSide() == enemy) return true;
+				else if (piece.getType().equals("Queen") && piece.getSide() == enemy) return true;
+				else if (!(piece.getType().equals("Blank"))) break;
+			}
+		}
+		//Check rank right
+		for (int i=0; i<7; i++){
+			int tx=x+i;
+			if (tx>-1 && tx<8){
+				Piece piece = board[tx][y];
+				if (piece.getType().equals("Rook") && piece.getSide() == enemy) return true;
+				else if (piece.getType().equals("Queen") && piece.getSide() == enemy) return true;
+				else if (!(piece.getType().equals("Blank"))) break;
+			}
+		}
+		//Check rank left
+		for (int i=0; i<7; i++){
+			int tx=x-i;
+			if (tx>-1 && tx<8){
+				Piece piece = board[tx][y];
+				if (piece.getType().equals("Rook") && piece.getSide() == enemy) return true;
+				else if (piece.getType().equals("Queen") && piece.getSide() == enemy) return true;
+				else if (!(piece.getType().equals("Blank"))) break;
+			}
+		}
+		//Check north east diagonal
+		for (int i=0; i<7; i++){
+			int tx=x+i;
+			int ty=y+i;
+			if (tx>-1 && tx<8 && ty>-1 && ty<8){
+				Piece piece = board[tx][ty];
+				if (piece.getType().equals("Bishop") && piece.getSide() == enemy) return true;
+				else if (piece.getType().equals("Queen") && piece.getSide() == enemy) return true;
+				else if (!(piece.getType().equals("Blank"))) break;
+			}
+		}
+		//Check north west diagonal
+		for (int i=0; i<7; i++){
+			int tx=x-i;
+			int ty=y+i;
+			if (tx>-1 && tx<8 && ty>-1 && ty<8){
+				Piece piece = board[tx][ty];
+				if (piece.getType().equals("Bishop") && piece.getSide() == enemy) return true;
+				else if (piece.getType().equals("Queen") && piece.getSide() == enemy) return true;
+				else if (!(piece.getType().equals("Blank"))) break;
+			}
+		}
+		//Check south west diagonal
+		for (int i=0; i<7; i++){
+			int tx=x-i;
+			int ty=y-i;
+			if (tx>-1 && tx<8 && ty>-1 && ty<8){
+				Piece piece = board[tx][ty];
+				if (piece.getType().equals("Bishop") && piece.getSide() == enemy) return true;
+				else if (piece.getType().equals("Queen") && piece.getSide() == enemy) return true;
+				else if (!(piece.getType().equals("Blank"))) break;
+			}
+		}
+		//Check south east diagonal
+		for (int i=0; i<7; i++){
+			int tx=x+i;
+			int ty=y-i;
+			if (tx>-1 && tx<8 && ty>-1 && ty<8){
+				Piece piece = board[tx][ty];
+				if (piece.getType().equals("Bishop") && piece.getSide() == enemy) return true;
+				else if (piece.getType().equals("Queen") && piece.getSide() == enemy) return true;
+				else if (!(piece.getType().equals("Blank"))) break;
+			}
 		}
 		return false;
 	}
