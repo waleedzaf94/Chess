@@ -138,9 +138,85 @@ public class Board implements Cloneable {
 	private Board movePiece(Board iboard, int[] init, int[] targ){
 		Piece[][] board = iboard.getBoard();
 		Piece orig = board[init[0]][init[1]];
-		Piece target = board[targ[0]][targ[1]];
-		
-		return null;
+		Piece[][] newboard = deepCopyBoard(board);
+		boolean wr=iboard.getWrmoved(), wl=iboard.getWlmoved(), wk=iboard.getWkmoved();
+		boolean br=iboard.getBrmoved(), bl=iboard.getBlmoved(), bk=iboard.getBkmoved();
+		boolean moved=false;
+		if (orig.getType()=="King"){
+			if (orig.getSide()=='W'){
+				if (wk==false){
+					if (targ[1]==1 && targ[0]==0){
+						if (wr==false){
+							newboard[0][1] = new Piece("King", 'W', 'K');
+							newboard[0][2] = new Piece("Rook", 'W', 'R');
+							newboard[0][0] = new Piece("Blank", 'N', '-');
+							newboard[0][3] = new Piece("Blank", 'N', '-');
+							moved = true;
+						}
+					}
+					else if (targ[1]==5 && targ[0]==0){
+						if (wl==false){
+							newboard[0][5] = new Piece("King", 'W', 'K');
+							newboard[0][4] = new Piece("Rook", 'W', 'R');
+							newboard[0][3] = new Piece("Blank", 'N', '-');
+							newboard[0][6] = new Piece("Blank", 'N', '-');
+							newboard[0][7] = new Piece("Blank", 'N', '-');
+							moved = true;
+						}
+					}
+				}
+			}
+			else if (orig.getSide()=='B'){
+				if (bk==false){
+					if (targ[1]==1 && targ[0]==7){
+						if (br==false){
+							newboard[7][1] = new Piece("King", 'W', 'K');
+							newboard[7][2] = new Piece("Rook", 'W', 'R');
+							newboard[7][0] = new Piece("Blank", 'N', '-');
+							newboard[7][3] = new Piece("Blank", 'N', '-');
+							moved = true;
+						}
+					}
+					else if (targ[1]==5 && targ[0]==7){
+						if (bl==false){
+							newboard[7][5] = new Piece("King", 'W', 'K');
+							newboard[7][4] = new Piece("Rook", 'W', 'R');
+							newboard[7][3] = new Piece("Blank", 'N', '-');
+							newboard[7][6] = new Piece("Blank", 'N', '-');
+							newboard[7][7] = new Piece("Blank", 'N', '-');
+							moved = true;
+						}
+					}
+				}
+			}
+		}
+		if (!moved){
+			newboard[targ[0]][targ[1]] = new Piece(orig.getType(), orig.getSide(), orig.getRepresentation());
+			newboard[init[0]][init[1]] = new Piece("Blank", 'N', '-');
+		}
+		if (orig.getType()=="Castle"){
+			if (init[1]==0){
+				if (orig.getSide()=='W')
+					wr=true;
+				else if (orig.getSide()=='B')
+					br=true;
+			}
+			else if (init[1]==7){
+				if (orig.getSide()=='W')
+					wl=true;
+				else if (orig.getSide()=='B')
+					bl=true;
+			}
+		}
+		else if (orig.getType()=="King"){
+			if (orig.getSide()=='W')
+				wk=true;
+			else if (orig.getSide()=='B')
+				bk=true;
+		}
+		Board newiboard = new Board(wr, wl, wk, br, bl, bk);
+		newiboard.setBoard(newboard);
+		return newiboard;
 	}
 	
 	private ArrayList<Board> generateMoves(Board iBoard, char side){
