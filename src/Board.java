@@ -97,7 +97,7 @@ public class Board implements Cloneable {
 	}
 	
 	
-	private void initBoard(){
+	public void initBoard(){
 		int i=1, j=0;
 		for (j=0; j<8; j++){
 			board[i][j] = new Piece("Pawn", 'W', 'P');
@@ -135,7 +135,31 @@ public class Board implements Cloneable {
 	}
 
 	
-	private Board movePiece(Board iboard, int[] init, int[] targ){
+	public static boolean isMate(Board iboard){
+		ArrayList<Board> wmoves = new ArrayList<>();
+		ArrayList<Board> bmoves = new ArrayList<>();
+		Piece[][] board = iboard.getBoard();
+		boolean wc=false, bc=false;
+		for (int i=0; i<8; i++){
+			for (int j=0; j<8; j++){
+				Piece piece = board[i][j];
+				int [] cood = {i, j};
+				if (piece.getRepresentation()=='K'){
+					wmoves = iboard.moveKing(iboard, cood);
+					wc = iboard.testCheck(iboard.getBoard(), 'W');
+				}
+				else if (piece.getRepresentation()=='k'){
+					bmoves = iboard.moveKing(iboard, cood);
+					bc = iboard.testCheck(iboard.getBoard(), 'B');
+				}
+			}
+		}
+		if (wmoves.size()==0 && wc) return true;
+		if (bmoves.size()==0 && bc) return true;		
+		return false;
+	}
+	
+	public static Board movePiece(Board iboard, int[] init, int[] targ){
 		Piece[][] board = iboard.getBoard();
 		Piece orig = board[init[0]][init[1]];
 		Piece[][] newboard = deepCopyBoard(board);
@@ -219,7 +243,7 @@ public class Board implements Cloneable {
 		return newiboard;
 	}
 	
-	private ArrayList<Board> generateMoves(Board iBoard, char side){
+	public ArrayList<Board> generateMoves(Board iBoard, char side){
 		ArrayList<Board> results = new ArrayList<>();
 		Piece[][] board = iBoard.getBoard();
 		for (int i=0; i<8; i++){
@@ -1091,7 +1115,7 @@ public class Board implements Cloneable {
 	}
 	
 	
-	private int evaluate(Board iboard){
+	public static int evaluate(Board iboard){
 		int wk=0, wq=0, wr=0, wb=0, wn=0, wp=0;
 		int bk=0, bq=0, br=0, bb=0, bn=0, bp=0;
 		Piece[][] board = iboard.getBoard();
@@ -1163,11 +1187,14 @@ public class Board implements Cloneable {
 	
 	public static void printboard(Piece [][] board){
 		for (int i=7; i>=0; i--){
+			System.out.print(i + " ");
 			for (int j=7; j>=0; j--){
 				System.out.print(board[i][j].getRepresentation() + " ");
 			}
 			System.out.println();
 		}
+		System.out.println("  A B C D E F G H");
+		System.out.println("==================\n");
 	}
 	
 
